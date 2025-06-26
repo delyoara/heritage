@@ -1,5 +1,5 @@
-//le parent
-  export class Starship {
+
+export class Starship {
     size: number
     name: string
 
@@ -7,9 +7,13 @@
         this.size = size
         this.name = name
     }
-    
+
+    public describe(): string {
+        return `Vaisseau "${this.name}" de taille ${this.size}`
+    }
 }
-//l'enfant qui transport du matériel 
+
+
 export class Cruiser extends Starship {
     maxCapacity: number
     occupiedCapacity: number = 0
@@ -18,27 +22,31 @@ export class Cruiser extends Starship {
         super(name, size)
         this.maxCapacity = maxCapacity
     }
-//ajoute une charge
-    public load(quantity: number) {
+
+    public load(quantity: number): void {
         if (this.occupiedCapacity + quantity <= this.maxCapacity) {
             this.occupiedCapacity += quantity
-            console.log(`Free space: ${this.maxCapacity - this.occupiedCapacity}`)
+            console.log(`[${this.name}] Free space: ${this.maxCapacity - this.occupiedCapacity}`)
         } else {
-            console.log("No room left for loading")
+            console.log(`[${this.name}] No room left for loading`)
         }
     }
-//elneve une charge
-    public unload(quantity: number) {
-        this.occupiedCapacity -= quantity
-        console.log(`Free space: ${this.maxCapacity - this.occupiedCapacity}`)
+
+    public unload(quantity: number): void {
+        this.occupiedCapacity = Math.max(0, this.occupiedCapacity - quantity)
+        console.log(`[${this.name}] Free space: ${this.maxCapacity - this.occupiedCapacity}`)
     }
 
-    //l'espce restant
     public getCurrentFreeSpace(): number {
         return this.maxCapacity - this.occupiedCapacity
     }
+
+    public override describe(): string {
+        return super.describe() + ` (type Croiseur, capacité ${this.maxCapacity})`
+    }
 }
-//2nde classe enfant : vaisseau de combat
+
+
 export class Interceptor extends Starship {
     guns: number
     private maxShotPerGun: number = 1
@@ -49,31 +57,51 @@ export class Interceptor extends Starship {
         this.guns = guns
     }
 
-    public shoot() {
+    public shoot(): void {
         if (this.currentShotCount < this.maxShotPerGun * this.guns) {
             this.currentShotCount += 1
-            console.log("Shot fired")
+            console.log(`[${this.name}] Shot fired`)
         } else {
-            console.log("Reload before shoot")
+            console.log(`[${this.name}] Reload before shooting again`)
         }
     }
 
-    public reload() {
+    public reload(): void {
         this.currentShotCount = 0
-        console.log("Guns are reloaded")
+        console.log(`[${this.name}] Guns reloaded`)
     }
 
     public getCurrentShotCount(): number {
         return this.currentShotCount
     }
-}
-const cargo = new Cruiser("CargoX", 100, 80)
-cargo.load(30)
-cargo.unload(10)
 
-const xwing = new Interceptor("X-Wing", 15, 2)
-xwing.shoot()
-xwing.shoot()
-xwing.shoot()  
-xwing.reload()
-xwing.shoot()
+    public override describe(): string {
+        return super.describe() + ` (type Intercepteur avec ${this.guns} canons)`
+    }
+}
+
+
+function showShipInfo(ship: Starship): void {
+    console.log(ship.describe())
+}
+
+// Instanciation
+const acclamator1 = new Cruiser("Acclamator I", 750, 700)
+const acclamator2 = new Cruiser("Acclamator II", 760, 700)
+const xWing = new Interceptor("X-Wing", 12.5, 2)
+
+
+showShipInfo(acclamator1)
+showShipInfo(acclamator2)
+showShipInfo(xWing)
+
+
+acclamator1.load(600)  
+acclamator1.load(200)  
+
+
+xWing.shoot()
+xWing.shoot() 
+xWing.shoot() 
+xWing.reload()
+xWing.shoot() 
